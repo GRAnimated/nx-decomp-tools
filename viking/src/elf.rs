@@ -262,7 +262,10 @@ pub fn is_in_section(section: &SectionHeader, addr: u64, size: u64) -> bool {
 
 pub fn build_glob_data_table(elf: &OwnedElf) -> Result<GlobDataTable> {
     let section = &elf.dynrelas;
-    let section_hdr = find_section(elf, ".rela.dyn")?;
+    let section_hdr = match find_section(elf, ".rela.dyn") {
+        Ok(shdr) => shdr,
+        Err(_) => return Ok(FxHashMap::default()),
+    };
     // The corresponding symbol table.
     let symtab = parse_symtab(elf, get_linked_section(elf, section_hdr)?)?;
 
